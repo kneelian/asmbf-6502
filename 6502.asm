@@ -36,8 +36,8 @@ org 0
 ; then the rest of memory is filled with
 ; the 6502's program's mem and executable code
 ; 
-;	therefore, all 6502 memory accesses are offset by 4
-;	to avoid tampering with the register store / internals
+;	but we don't offset the 6502's memory by 4
+;   and instead we're sacrificing 4 bytes of ZP
 
 ; the registers are all volatile: don't assume anything
 ; will be saved, and everything SHALL be trashed
@@ -457,9 +457,7 @@ lbl $(0xb8)
 lbl $(0xa0)
 ; LDY imm
 	inc r6
-	mod r6, $(0xffff + 0x4)
-	clt  r6, 4
-	cadd r6, 4
+	mod r6, $(0xffff)
 	rcl r1, r6
 ; if zero, trip zero flag => R5 or 2
 	ceq  r1, 0
@@ -479,9 +477,7 @@ lbl $(0xa0)
 lbl $(0xa2)
 ; LDX imm
 	inc r6
-	mod r6, $(0xffff + 0x4)
-	clt  r6, 4
-	cadd r6, 4
+	mod r6, $(0xffff)
 	rcl r1, r6
 ; if zero, trip zero flag => R5 or 2
 	ceq  r1, 0
@@ -501,9 +497,7 @@ lbl $(0xa2)
 lbl $(0xa9)
 ; LDA imm
 	inc r6
-	mod r6, $(0xffff + 0x4)
-	clt  r6, 4
-	cadd r6, 4
+	mod r6, $(0xffff)
 	rcl r1, r6
 ; if zero, trip zero flag => R5 or 2
 	ceq  r1, 0
@@ -528,9 +522,7 @@ lbl $(0x09)
 ; ORA imm
 	rcl r1, *reg_a
 	inc r6
-	mod r6, $(0xffff + 0x4)
-	clt  r6, 4
-	cadd r6, 4
+	mod r6, $(0xffff)
 	rcl r2, r6
 	bor  r1, r2
 ; if zero, trip zero flag => R5 or 2
@@ -552,9 +544,7 @@ lbl $(0x29)
 ; AND imm
 	rcl r1, *reg_a
 	inc r6
-	mod r6, $(0xffff + 0x4)
-	clt  r6, 4
-	cadd r6, 4
+	mod r6, $(0xffff)
 	rcl r2, r6
    band r1, r2
 ; if zero, trip zero flag => R5 or 2
@@ -576,9 +566,7 @@ lbl $(0x49)
 ; EOR imm -- aka xor
 	rcl r1, *reg_a
 	inc r6
-	mod r6, $(0xffff + 0x4)
-	clt  r6, 4
-	cadd r6, 4
+	mod r6, $(0xffff)
 	rcl r2, r6
    bxor r1, r2
 ; if zero, trip zero flag => R5 or 2
@@ -596,142 +584,6 @@ lbl $(0x49)
 	ots r1, *reg_a
 	ret
 
-; ==== ;
-; jump ;
-; ==== ;
-
-lbl $(0x4c)
-; JMP imml immh
-	inc r6
-	mod r6, $(0xffff + 0x4)
-	clt  r6, 4
-	cadd r6, 4
-	rcl r1, r6
-
-	inc r6
-	mod r6, $(0xffff + 0x4)
-	clt  r6, 4
-	cadd r6, 4
-	rcl r2, r6
-	mul r2, 256
-
-   ^mov r6, r1
-   ^add r6, r2
-
-   ret
-
-lbl $(0x10)
- ; BPL offset aka branch on plus aka bit 7 not set
- 	inc r6
-	 	mod r6, $(0xffff + 0x4)
-		clt  r6, 4
-		cadd r6, 4
-    mov f1, r5
-    and f1, 127
-    cjz $(0x110)
-    ret
-	lbl $(0x110)
-	rcl r1, r6
-	sub r6, 128
-   ^add r6, r1
-    ret
-
-lbl $(0x30)
- ; BMI offset aka branch on minus aka bit 7 yes set
- 	inc r6
-	 	mod r6, $(0xffff + 0x4)
-		clt  r6, 4
-		cadd r6, 4
-    mov f1, r5
-    and f1, 127
-    cjn $(0x130)
-    ret
-	lbl $(0x130)
-	rcl r1, r6
-	sub r6, 128
-   ^add r6, r1
-    ret
-
-lbl $(0xD0)
- ; BNE offset aka branch on non-zero aka bit 2 not set
- 	inc r6
-	 	mod r6, $(0xffff + 0x4)
-		clt  r6, 4
-		cadd r6, 4
-    mov f1, r5
-    and f1, 2
-    cjz $(0x1D0)
-    ret
-	lbl $(0x1D0)
-	rcl r1, r6
-	sub r6, 128
-   ^add r6, r1
-    ret
-
-lbl $(0x50)
- ; BVC offset aka branch on overflow clear
- 	inc r6
-	 	mod r6, $(0xffff + 0x4)
-		clt  r6, 4
-		cadd r6, 4
-    mov f1, r5
-    and f1, 64
-    cjz $(0x150)
-    ret
-	lbl $(0x150)
-	rcl r1, r6
-	sub r6, 128
-   ^add r6, r1
-    ret
-
-lbl $(0x70)
- ; BVS offset aka branch on overflow set
- 	inc r6
-	 	mod r6, $(0xffff + 0x4)
-		clt  r6, 4
-		cadd r6, 4
-    mov f1, r5
-    and f1, 64
-    cjn $(0x170)
-    ret
-	lbl $(0x170)
-	rcl r1, r6
-	sub r6, 128
-   ^add r6, r1
-    ret
-
-lbl $(0x90)
- ; BCC offset aka branch on carry clear
- 	inc r6
-	 	mod r6, $(0xffff + 0x4)
-		clt  r6, 4
-		cadd r6, 4
-    mov f1, r5
-    and f1, 1
-    cjz $(0x190)
-    ret
-	lbl $(0x190)
-	rcl r1, r6
-	sub r6, 128
-   ^add r6, r1
-    ret
-
-lbl $(0xB0)
- ; BCS offset aka branch on carry set
- 	inc r6
-	 	mod r6, $(0xffff + 0x4)
-		clt  r6, 4
-		cadd r6, 4
-    mov f1, r5
-    and f1, 1
-    cjn $(0x1B0)
-    ret
-	lbl $(0x1B0)
-	rcl r1, r6
-	sub r6, 128
-   ^add r6, r1
-    ret
-
 ; ===================
 ; ===================
 
@@ -743,9 +595,7 @@ lbl $(0x69)
 
 	rcl r1, *reg_a
 	inc r6
-	mod r6, $(0xffff + 0x4)
-	clt  r6, 4
-	cadd r6, 4
+	mod r6, $(0xffff)
 	rcl r2, r6
 
 	mov r3, r1
@@ -806,9 +656,7 @@ lbl $(0xE9)
 
 	rcl r1, *reg_a
 	inc r6
-	mod r6, $(0xffff + 0x4)
-	clt  r6, 4
-	cadd r6, 4
+	mod r6, $(0xffff)
 	rcl r2, r6
 
 	mov r3, r1
@@ -862,6 +710,325 @@ lbl $(0xE9)
 	ots r1, *reg_a
 	ret
 
+; ========= ;
+; zeropages ;
+; ========= ;
+
+lbl $(0x05)
+; ORA zpg
+	rcl r1, *reg_a
+	inc r6
+	mod r6, $(0xffff)
+	rcl r2, r6
+	rcl r2, r2
+	bor  r1, r2
+; if zero, trip zero flag => R5 or 2
+	ceq  r1, 0
+	cbegin
+		bor r5, 2
+	cend
+; if MSB is set, trip neg flag => R5 or 128
+	mov  f1, 128
+	and  f1, r1
+	cbegin
+		bor r5, 128
+	cend
+; and store to memory
+	ots r1, *reg_a
+	ret
+
+lbl $(0x25)
+; AND zpg
+	rcl r1, *reg_a
+	inc r6
+	mod r6, $(0xffff)
+	rcl r2, r6
+	rcl r2, r2
+   band r1, r2
+; if zero, trip zero flag => R5 or 2
+	ceq  r1, 0
+	cbegin
+		bor r5, 2
+	cend
+; if MSB is set, trip neg flag => R5 or 128
+	mov  f1, 128
+	and  f1, r1
+	cbegin
+		bor r5, 128
+	cend
+; and store to memory
+	ots r1, *reg_a
+	ret
+
+lbl $(0x45)
+; EOR zpg -- aka xor
+	rcl r1, *reg_a
+	inc r6
+	mod r6, $(0xffff)
+	rcl r2, r6
+	rcl r2, r2
+   bxor r1, r2
+; if zero, trip zero flag => R5 or 2
+	ceq  r1, 0
+	cbegin
+		bor r5, 2
+	cend
+; if MSB is set, trip neg flag => R5 or 128
+	mov  f1, 128
+	and  f1, r1
+	cbegin
+		bor r5, 128
+	cend
+; and store to memory
+	ots r1, *reg_a
+	ret
+
+; ===================
+; ===================
+
+lbl $(0x65)
+; ADC zpg -- A + Mem + C
+; r1 - reg A
+; r2 - immediate
+; r3 - result
+
+	rcl r1, *reg_a
+	inc r6
+	mod r6, $(0xffff)
+	rcl r2, r6
+	rcl r2, r2
+
+	mov r3, r1
+	add r3, r2
+	mov r4, r5
+	and r4, 1
+   ^add r3, r4
+
+; now r3 is result
+; r4 is the only free temporary
+
+; if greater than 255, trip carry flag
+	cgt r2, 255
+	cbegin
+		mod r2, 255
+		bor r5, 1
+	cend
+; if sign different from both inputs, trip overflow flag
+;	 	to check this we need to reduce each of the three 
+; 		constituents to their sign bits logically
+;		and then (A xnor B) xor C == !(A xor B) xor C
+	mov r4, r3
+	and r1, 128
+	and r2, 128
+	and r4, 128
+
+	xor r1, r2
+	not r1
+	xor r1, r4
+
+	ceq r1, 1
+	cbegin
+		bor r5, 64
+	cend
+
+	mov r1, r3
+
+; if zero, trip zero flag => R5 or 2
+	ceq  r1, 0
+	cbegin
+		bor r5, 2
+	cend
+; if MSB is set, trip neg flag => R5 or 128
+	mov  f1, 128
+	and  f1, r1
+	cbegin
+		bor r5, 128
+	cend
+; and store to A register
+	ots r1, *reg_a
+	ret
+
+lbl $(0xE5)
+; SBC zpg -- A - Mem - !C
+; r1 - reg A
+; r2 - immediate
+; r3 - result
+
+	rcl r1, *reg_a
+	inc r6
+	mod r6, $(0xffff)
+	rcl r2, r6
+	rcl r2, r2
+
+	mov r3, r1
+	sub r3, r2
+	mov r4, r5
+	and r4, 1
+	not r4
+   ^sub r3, r4
+
+; now r3 is result
+; r4 is the only free temporary
+
+; if greater than 255, trip carry flag
+	cgt r2, 255
+	cbegin
+		mod r2, 255
+		bor r5, 1
+	cend
+; if sign different from both inputs, trip overflow flag
+;	 	to check this we need to reduce each of the three 
+; 		constituents to their sign bits logically
+;		and then (A xnor B) xor C == !(A xor B) xor C
+	mov r4, r3
+	and r1, 128
+	and r2, 128
+	and r4, 128
+
+	xor r1, r2
+	not r1
+	xor r1, r4
+
+	ceq r1, 1
+	cbegin
+		bor r5, 64
+	cend
+
+	mov r1, r3
+
+; if zero, trip zero flag => R5 or 2
+	ceq  r1, 0
+	cbegin
+		bor r5, 2
+	cend
+; if MSB is set, trip neg flag => R5 or 128
+	mov  f1, 128
+	and  f1, r1
+	cbegin
+		bor r5, 128
+	cend
+; and store to A register
+	ots r1, *reg_a
+	ret
+
+; ==== ;
+; jump ;
+; ==== ;
+
+lbl $(0x4c)
+; JMP imml immh
+	inc r6
+	mod r6, $(0xffff)
+	rcl r1, r6
+
+	inc r6
+	mod r6, $(0xffff)
+	rcl r2, r6
+	mul r2, 256
+
+   ^mov r6, r1
+   ^add r6, r2
+
+   ret
+
+lbl $(0x10)
+ ; BPL offset aka branch on plus aka bit 7 not set
+ 	inc r6
+	 	mod r6, $(0xffff)
+    mov f1, r5
+    and f1, 127
+    cjz $(0x110)
+    ret
+	lbl $(0x110)
+	rcl r1, r6
+	sub r6, 128
+   ^add r6, r1
+    ret
+
+lbl $(0x30)
+ ; BMI offset aka branch on minus aka bit 7 yes set
+ 	inc r6
+	 	mod r6, $(0xffff)
+    mov f1, r5
+    and f1, 127
+    cjn $(0x130)
+    ret
+	lbl $(0x130)
+	rcl r1, r6
+	sub r6, 128
+   ^add r6, r1
+    ret
+
+lbl $(0xD0)
+ ; BNE offset aka branch on non-zero aka bit 2 not set
+ 	inc r6
+	 	mod r6, $(0xffff)
+    mov f1, r5
+    and f1, 2
+    cjz $(0x1D0)
+    ret
+	lbl $(0x1D0)
+	rcl r1, r6
+	sub r6, 128
+   ^add r6, r1
+    ret
+
+lbl $(0x50)
+ ; BVC offset aka branch on overflow clear
+ 	inc r6
+	 	mod r6, $(0xffff)
+    mov f1, r5
+    and f1, 64
+    cjz $(0x150)
+    ret
+	lbl $(0x150)
+	rcl r1, r6
+	sub r6, 128
+   ^add r6, r1
+    ret
+
+lbl $(0x70)
+ ; BVS offset aka branch on overflow set
+ 	inc r6
+	 	mod r6, $(0xffff)
+    mov f1, r5
+    and f1, 64
+    cjn $(0x170)
+    ret
+	lbl $(0x170)
+	rcl r1, r6
+	sub r6, 128
+   ^add r6, r1
+    ret
+
+lbl $(0x90)
+ ; BCC offset aka branch on carry clear
+ 	inc r6
+	 	mod r6, $(0xffff)
+    mov f1, r5
+    and f1, 1
+    cjz $(0x190)
+    ret
+	lbl $(0x190)
+	rcl r1, r6
+	sub r6, 128
+   ^add r6, r1
+    ret
+
+lbl $(0xB0)
+ ; BCS offset aka branch on carry set
+ 	inc r6
+	 	mod r6, $(0xffff)
+    mov f1, r5
+    and f1, 1
+    cjn $(0x1B0)
+    ret
+	lbl $(0x1B0)
+	rcl r1, r6
+	sub r6, 128
+   ^add r6, r1
+    ret
+
 ; ============-= ;
 ;				 ;
 ;	comparison	 ;
@@ -875,9 +1042,7 @@ lbl $(0xc9)
 ; CMP/CPA imm
 	rcl r1, *reg_a
 	inc r6
-	mod r6, $(0xffff + 0x4)
-	clt  r6, 4
-	cadd r6, 4
+	mod r6, $(0xffff)
 	rcl r2, r6
 
    ^sub r1, r2
@@ -899,9 +1064,7 @@ lbl $(0xe0)
 ; CPX imm
 	rcl r1, *reg_x
 	inc r6
-	mod r6, $(0xffff + 0x4)
-	clt  r6, 4
-	cadd r6, 4
+	mod r6, $(0xffff)
 	rcl r2, r6
 
    ^sub r1, r2
@@ -923,10 +1086,79 @@ lbl $(0xc0)
 ; CPY imm
 	rcl r1, *reg_y
 	inc r6
-	mod r6, $(0xffff + 0x4)
-	clt  r6, 4
-	cadd r6, 4
+	mod r6, $(0xffff)
 	rcl r2, r6
+
+   ^sub r1, r2
+
+    cge r1, 0
+    cbegin
+    	bor r5, 1
+    cend
+    cne r1, 0
+    not f1
+    bor r5, f1
+
+   band r1, 128
+    bor r5, r1
+
+    ret
+
+; and zpg
+
+lbl $(0xc5)
+; CMP/CPA zpg
+	rcl r1, *reg_a
+	inc r6
+	mod r6, $(0xffff)
+	rcl r2, r6
+	rcl r2, r2
+
+   ^sub r1, r2
+
+    cge r1, 0
+    cbegin
+    	bor r5, 1
+    cend
+    cne r1, 0
+    not f1
+    bor r5, f1
+
+   band r1, 128
+    bor r5, r1
+
+    ret
+
+lbl $(0xe4)
+; CPX zpg
+	rcl r1, *reg_x
+	inc r6
+	mod r6, $(0xffff)
+	rcl r2, r6
+	rcl r2, r2
+
+   ^sub r1, r2
+
+    cge r1, 0
+    cbegin
+    	bor r5, 1
+    cend
+    cne r1, 0
+    not f1
+    bor r5, f1
+
+   band r1, 128
+    bor r5, r1
+
+    ret
+
+lbl $(0xc4)
+; CPY zpg
+	rcl r1, *reg_y
+	inc r6
+	mod r6, $(0xffff)
+	rcl r2, r6
+	rcl r2, r2
 
    ^sub r1, r2
 
@@ -970,10 +1202,10 @@ lbl $(RESET_STARTUP)
 ;	make sure we're using clean IC
 clr r6
 
-rcl r2, $(0xfffc + 0x4)
-rcl r3, $(0xfffd + 0x4)
-; 65532 -- fffc ==> 65536 = low byte  in r2
-; 65533 -- fffd ==> 65537 = high byte in r3
+rcl r2, $(0xfffc)
+rcl r3, $(0xfffd)
+; 65532 -- fffc = low byte  in r2
+; 65533 -- fffd = high byte in r3
 ;	now we use destructive addition to
 ;	fill the r6, and then we jump into start
 ^add r6, r2
@@ -1003,9 +1235,7 @@ lbl $(START)
 
 rcl r1, r6
 inc r6
-	mod r6, $(0xffff + 0x4)
-	clt  r6, 4
-	cadd r6, 4
+mod r6, $(0xffff)
 
 psh $(START)
 
