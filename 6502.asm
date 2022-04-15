@@ -514,6 +514,73 @@ lbl $(0xa9)
 	ots r1, *reg_a
 	ret
 
+; =======
+;
+;	and with zero page
+
+lbl $(0xA5)
+; LDA zpg
+	inc r6
+	band r6, $(0xffff)
+	rcl r1, r6
+	rcl r1, r1
+; if zero, trip zero flag => R5 or 2
+	ceq  r1, 0
+	cbegin
+		bor r5, 2
+	cend
+; if MSB is set, trip neg flag => R5 or 128
+	mov  f1, 128
+	and  f1, r1
+	cbegin
+		bor r5, 128
+	cend
+; and store to X register
+	ots r1, *reg_a
+	ret
+
+lbl $(0xA6)
+; LDX zpg
+	inc r6
+	band r6, $(0xffff)
+	rcl r1, r6
+	rcl r1, r1
+; if zero, trip zero flag => R5 or 2
+	ceq  r1, 0
+	cbegin
+		bor r5, 2
+	cend
+; if MSB is set, trip neg flag => R5 or 128
+	mov  f1, 128
+	and  f1, r1
+	cbegin
+		bor r5, 128
+	cend
+; and store to X register
+	ots r1, *reg_x
+	ret
+
+lbl $(0xA4)
+; LDY zpg
+	inc r6
+	band r6, $(0xffff)
+	rcl r1, r6
+	rcl r1, r1
+; if zero, trip zero flag => R5 or 2
+	ceq  r1, 0
+	cbegin
+		bor r5, 2
+	cend
+; if MSB is set, trip neg flag => R5 or 128
+	mov  f1, 128
+	and  f1, r1
+	cbegin
+		bor r5, 128
+	cend
+; and store to X register
+	ots r1, *reg_y
+	ret
+
 ; ========= ;
 ; implicits ;
 ; ========= ;
@@ -1174,6 +1241,44 @@ lbl $(0xc4)
     bor r5, r1
 
     ret
+
+; ================== ;
+;					 ;
+;	store to memory  ;
+;                    ;
+; ================== ;
+
+lbl $(0x84)
+;STY zpg
+	rcl r1, *reg_y
+	inc r6
+	band r6, $(0xffff)
+	rcl r2, r6
+
+	ots r1, r2
+	ret
+
+lbl $(0x85)
+;STA zpg
+	rcl r1, *reg_a
+	inc r6
+	band r6, $(0xffff)
+	rcl r2, r6
+
+	ots r1, r2
+	ret
+
+lbl $(0x86)
+;STX zpg
+	rcl r1, *reg_x
+	inc r6
+	band r6, $(0xffff)
+	rcl r2, r6
+
+	ots r1, r2
+	ret
+
+
 
 ; =================================	;
 ;								   	;
