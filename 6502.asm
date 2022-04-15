@@ -254,6 +254,55 @@ lbl $(0xc8)
 	ots  r1, *reg_y 
 	ret
 
+lbl $(0x4a)
+; LSR A ; shift right
+	rcl r1, *reg_a
+	asr r1
+; if zero, trip zero flag => R5 or 2
+	ceq  r1, 0
+	cbegin
+		bor r5, 2
+	cend
+; if MSB is set, trip neg flag => R5 or 128
+	mov  f1, 128
+	and  f1, r1
+	cbegin
+		bor r5, 128
+	cend
+; and move it back to memory
+	ots  r1, *reg_a
+	ret
+
+lbl $(0x4a)
+; ROR A ; rotate right
+	rcl r1, *reg_a
+	mov r2, r1
+	mov r3, r5
+
+	and r2, 1
+	and r3, 1
+
+	band r5, r2
+	asr r1
+	mul  r3, 128
+	band r1, r3
+	
+; if zero, trip zero flag => R5 or 2
+	ceq  r1, 0
+	cbegin
+		bor r5, 2
+	cend
+; if MSB is set, trip neg flag => R5 or 128
+	mov  f1, 128
+	and  f1, r1
+	cbegin
+		bor r5, 128
+	cend
+; and move it back to memory
+	ots  r1, *reg_a
+	ret
+
+
 ; ===============
 ; ===============
 
@@ -1277,8 +1326,6 @@ lbl $(0x86)
 
 	ots r1, r2
 	ret
-
-
 
 ; =================================	;
 ;								   	;
