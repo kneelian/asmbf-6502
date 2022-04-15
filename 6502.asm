@@ -1,4 +1,4 @@
-[bits 32]
+[bits 16]
 
 stk 32
 org 0
@@ -506,7 +506,7 @@ lbl $(0xb8)
 lbl $(0xa0)
 ; LDY imm
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r1, r6
 ; if zero, trip zero flag => R5 or 2
 	ceq  r1, 0
@@ -526,7 +526,7 @@ lbl $(0xa0)
 lbl $(0xa2)
 ; LDX imm
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r1, r6
 ; if zero, trip zero flag => R5 or 2
 	ceq  r1, 0
@@ -546,7 +546,7 @@ lbl $(0xa2)
 lbl $(0xa9)
 ; LDA imm
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r1, r6
 ; if zero, trip zero flag => R5 or 2
 	ceq  r1, 0
@@ -570,7 +570,7 @@ lbl $(0xa9)
 lbl $(0xA5)
 ; LDA zpg
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r1, r6
 	rcl r1, r1
 ; if zero, trip zero flag => R5 or 2
@@ -591,7 +591,7 @@ lbl $(0xA5)
 lbl $(0xA6)
 ; LDX zpg
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r1, r6
 	rcl r1, r1
 ; if zero, trip zero flag => R5 or 2
@@ -612,7 +612,7 @@ lbl $(0xA6)
 lbl $(0xA4)
 ; LDY zpg
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r1, r6
 	rcl r1, r1
 ; if zero, trip zero flag => R5 or 2
@@ -638,7 +638,7 @@ lbl $(0x09)
 ; ORA imm
 	rcl r1, *reg_a
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r2, r6
 	bor  r1, r2
 ; if zero, trip zero flag => R5 or 2
@@ -660,7 +660,7 @@ lbl $(0x29)
 ; AND imm
 	rcl r1, *reg_a
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r2, r6
    band r1, r2
 ; if zero, trip zero flag => R5 or 2
@@ -682,7 +682,7 @@ lbl $(0x49)
 ; EOR imm -- aka xor
 	rcl r1, *reg_a
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r2, r6
    bxor r1, r2
 ; if zero, trip zero flag => R5 or 2
@@ -711,7 +711,7 @@ lbl $(0x69)
 
 	rcl r1, *reg_a
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r2, r6
 
 	mov r3, r1
@@ -772,7 +772,7 @@ lbl $(0xE9)
 
 	rcl r1, *reg_a
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r2, r6
 
 	mov r3, r1
@@ -834,7 +834,7 @@ lbl $(0x05)
 ; ORA zpg
 	rcl r1, *reg_a
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r2, r6
 	rcl r2, r2
 	bor  r1, r2
@@ -857,7 +857,7 @@ lbl $(0x25)
 ; AND zpg
 	rcl r1, *reg_a
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r2, r6
 	rcl r2, r2
    band r1, r2
@@ -880,7 +880,7 @@ lbl $(0x45)
 ; EOR zpg -- aka xor
 	rcl r1, *reg_a
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r2, r6
 	rcl r2, r2
    bxor r1, r2
@@ -910,7 +910,7 @@ lbl $(0x65)
 
 	rcl r1, *reg_a
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r2, r6
 	rcl r2, r2
 
@@ -972,7 +972,7 @@ lbl $(0xE5)
 
 	rcl r1, *reg_a
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r2, r6
 	rcl r2, r2
 
@@ -1034,11 +1034,11 @@ lbl $(0xE5)
 lbl $(0x4c)
 ; JMP imml immh
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r1, r6
 
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r2, r6
 	mul r2, 256
 
@@ -1050,7 +1050,7 @@ lbl $(0x4c)
 lbl $(0x10)
  ; BPL offset aka branch on plus aka bit 7 not set
  	inc r6
-	 	band r6, $(0xffff)
+	 ;  band r6, $(0xffff)
     mov f1, r5
     and f1, 127
     cjz $(0x110)
@@ -1064,7 +1064,7 @@ lbl $(0x10)
 lbl $(0x30)
  ; BMI offset aka branch on minus aka bit 7 yes set
  	inc r6
-	 	band r6, $(0xffff)
+	 ;  band r6, $(0xffff)
     mov f1, r5
     and f1, 127
     cjn $(0x130)
@@ -1078,7 +1078,7 @@ lbl $(0x30)
 lbl $(0xD0)
  ; BNE offset aka branch on non-zero aka bit 2 not set
  	inc r6
-	 	band r6, $(0xffff)
+	 ;  band r6, $(0xffff)
     mov f1, r5
     and f1, 2
     cjz $(0x1D0)
@@ -1092,7 +1092,7 @@ lbl $(0xD0)
 lbl $(0x50)
  ; BVC offset aka branch on overflow clear
  	inc r6
-	 	band r6, $(0xffff)
+	 ;  band r6, $(0xffff)
     mov f1, r5
     and f1, 64
     cjz $(0x150)
@@ -1106,7 +1106,7 @@ lbl $(0x50)
 lbl $(0x70)
  ; BVS offset aka branch on overflow set
  	inc r6
-	 	band r6, $(0xffff)
+	 ;  band r6, $(0xffff)
     mov f1, r5
     and f1, 64
     cjn $(0x170)
@@ -1120,7 +1120,7 @@ lbl $(0x70)
 lbl $(0x90)
  ; BCC offset aka branch on carry clear
  	inc r6
-	 	band r6, $(0xffff)
+	 ;  band r6, $(0xffff)
     mov f1, r5
     and f1, 1
     cjz $(0x190)
@@ -1134,7 +1134,7 @@ lbl $(0x90)
 lbl $(0xB0)
  ; BCS offset aka branch on carry set
  	inc r6
-	 	band r6, $(0xffff)
+	 ;  band r6, $(0xffff)
     mov f1, r5
     and f1, 1
     cjn $(0x1B0)
@@ -1158,7 +1158,7 @@ lbl $(0xc9)
 ; CMP/CPA imm
 	rcl r1, *reg_a
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r2, r6
 
    ^sub r1, r2
@@ -1180,7 +1180,7 @@ lbl $(0xe0)
 ; CPX imm
 	rcl r1, *reg_x
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r2, r6
 
    ^sub r1, r2
@@ -1202,7 +1202,7 @@ lbl $(0xc0)
 ; CPY imm
 	rcl r1, *reg_y
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r2, r6
 
    ^sub r1, r2
@@ -1226,7 +1226,7 @@ lbl $(0xc5)
 ; CMP/CPA zpg
 	rcl r1, *reg_a
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r2, r6
 	rcl r2, r2
 
@@ -1249,7 +1249,7 @@ lbl $(0xe4)
 ; CPX zpg
 	rcl r1, *reg_x
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r2, r6
 	rcl r2, r2
 
@@ -1272,7 +1272,7 @@ lbl $(0xc4)
 ; CPY zpg
 	rcl r1, *reg_y
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r2, r6
 	rcl r2,
 
@@ -1301,7 +1301,7 @@ lbl $(0x84)
 ;STY zpg
 	rcl r1, *reg_y
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r2, r6
 
 	ots r1, r2
@@ -1311,7 +1311,7 @@ lbl $(0x85)
 ;STA zpg
 	rcl r1, *reg_a
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r2, r6
 
 	ots r1, r2
@@ -1321,7 +1321,7 @@ lbl $(0x86)
 ;STX zpg
 	rcl r1, *reg_x
 	inc r6
-	band r6, $(0xffff)
+;  band r6, $(0xffff)
 	rcl r2, r6
 
 	ots r1, r2
@@ -1387,7 +1387,7 @@ lbl $(START)
 
 rcl r1, r6
 inc r6
-band r6, $(0xffff)
+;  band r6, $(0xffff)
 
 psh $(START)
 
